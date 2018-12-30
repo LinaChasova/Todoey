@@ -8,6 +8,7 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
 class ToDoListViewController: SwipeTableViewController {
     
@@ -18,9 +19,18 @@ class ToDoListViewController: SwipeTableViewController {
             loadItems()
         }
     }
-
+    @IBOutlet weak var searchBar: UISearchBar!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        title = selectedCategory!.name
+        navigationController?.navigationBar.barTintColor = UIColor(hexString: selectedCategory!.colour)
+        searchBar.barTintColor = UIColor(hexString: selectedCategory!.colour)
+        navigationController?.navigationBar.tintColor = ContrastColorOf(UIColor(hexString: selectedCategory!.colour)!, returnFlat: true)
+        navigationController?.navigationBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor : ContrastColorOf(UIColor(hexString: selectedCategory!.colour)!, returnFlat: true)]
     }
     
     // MARK: - TableViewDataSource methods
@@ -36,6 +46,12 @@ class ToDoListViewController: SwipeTableViewController {
             cell.textLabel?.text = item.todoey
             
             cell.accessoryType = item.isChecked ? .checkmark : .none
+            
+            if let color = UIColor(hexString: selectedCategory!.colour)?.darken(byPercentage: CGFloat(indexPath.row) / CGFloat(items!.count)) {
+                cell.backgroundColor = color
+                cell.textLabel?.textColor = ContrastColorOf(color, returnFlat: true)
+            }
+        
         } else {
             cell.textLabel?.text = "No Items Yet"
         }
